@@ -601,11 +601,11 @@ const TeacherDashboard: React.FC<Props> = ({ teacher, apiKey }) => {
         </div>
       )}
 
-      {/* Lesson Preview Modal */}
+      {/* Lesson Preview Modal - Enhanced z-index to stay above main header */}
       {previewingLesson && (
-        <div className="fixed inset-0 z-[500] bg-white overflow-y-auto custom-scrollbar flex flex-col animate-in">
+        <div className="fixed inset-0 z-[2000] bg-white overflow-y-auto custom-scrollbar flex flex-col animate-in">
            {/* Top bar */}
-           <div className="bg-white border-b border-blue-100 px-8 py-6 flex justify-between items-center sticky top-0 z-50">
+           <div className="bg-white border-b border-blue-100 px-8 py-6 flex justify-between items-center sticky top-0 z-[2001] shadow-sm">
               <div className="flex items-center gap-4">
                  <div className="bg-blue-600 text-white px-4 py-2 rounded-xl text-xs font-black uppercase tracking-widest">
                    CHẾ ĐỘ XEM TRƯỚC
