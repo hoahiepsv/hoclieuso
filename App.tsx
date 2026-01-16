@@ -229,21 +229,35 @@ const App: React.FC = () => {
         ADMIN
       </button>
 
-      {/* Admin Modal */}
+      {/* Admin Modal - Shrinked and Compact */}
       {showAdminLogin && (
         <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-blue-900/40 backdrop-blur-md animate-in">
-          <div className="bg-white rounded-[40px] shadow-2xl p-10 max-sm w-full border border-blue-100 relative overflow-hidden">
-            <button onClick={() => setShowAdminLogin(false)} className="absolute top-6 right-6 text-gray-300 hover:text-red-500 transition-colors">
-               <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M6 18L18 6M6 6l12 12" /></svg>
+          <div className="bg-white rounded-[32px] shadow-2xl p-6 max-w-[320px] w-full border border-blue-100 relative overflow-hidden">
+            <button onClick={() => setShowAdminLogin(false)} className="absolute top-4 right-4 text-gray-300 hover:text-red-500 transition-colors">
+               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M6 18L18 6M6 6l12 12" /></svg>
             </button>
-            <div className="text-center mb-8">
-               <h3 className="text-xl font-black text-blue-900 uppercase tracking-tighter">QUẢN TRỊ VIÊN</h3>
-               <p className="text-[9px] text-blue-400 font-bold uppercase tracking-widest mt-2">Bảo mật hệ thống</p>
+            <div className="text-center mb-6">
+               <h3 className="text-lg font-black text-blue-900 uppercase tracking-tighter">QUẢN TRỊ</h3>
+               <p className="text-[8px] text-blue-400 font-bold uppercase tracking-widest mt-1">Hệ thống bảo mật</p>
             </div>
-            <form onSubmit={handleAdminAuth} className="space-y-4">
-               <input type="text" placeholder="Tên đăng nhập" required className="w-full bg-blue-50 border-2 border-transparent focus:border-blue-500 rounded-2xl p-4 outline-none transition-all font-bold text-blue-900 text-sm" value={adminCreds.user} onChange={e => setAdminCreds({...adminCreds, user: e.target.value})} />
-               <input type="password" placeholder="Mật khẩu" required className="w-full bg-blue-50 border-2 border-transparent focus:border-blue-500 rounded-2xl p-4 outline-none transition-all font-bold text-blue-900 text-sm" value={adminCreds.pass} onChange={e => setAdminCreds({...adminCreds, pass: e.target.value})} />
-               <button type="submit" className="w-full bg-blue-600 text-white py-4 rounded-2xl font-black uppercase tracking-widest hover:bg-blue-700 shadow-xl shadow-blue-100 transition-all text-sm mt-2">XÁC THỰC</button>
+            <form onSubmit={handleAdminAuth} className="space-y-3">
+               <input 
+                 type="text" 
+                 placeholder="Tài khoản" 
+                 required 
+                 className="w-full bg-blue-50 border-2 border-transparent focus:border-blue-500 rounded-xl p-3 outline-none transition-all font-bold text-blue-900 text-xs" 
+                 value={adminCreds.user} 
+                 onChange={e => setAdminCreds({...adminCreds, user: e.target.value})} 
+               />
+               <input 
+                 type="password" 
+                 placeholder="Mật khẩu" 
+                 required 
+                 className="w-full bg-blue-50 border-2 border-transparent focus:border-blue-500 rounded-xl p-3 outline-none transition-all font-bold text-blue-900 text-xs" 
+                 value={adminCreds.pass} 
+                 onChange={e => setAdminCreds({...adminCreds, pass: e.target.value})} 
+               />
+               <button type="submit" className="w-full bg-blue-600 text-white py-3 rounded-xl font-black uppercase tracking-widest hover:bg-blue-700 shadow-lg shadow-blue-100 transition-all text-[10px] mt-2">ĐĂNG NHẬP</button>
             </form>
           </div>
         </div>

@@ -1,5 +1,5 @@
 {
-  "name": "E-LEARNING - Create by Hoà Hiệp AI",
+  "name": "E-LEARNING - LMS",
   "description": "Hệ thống học tập trực tuyến tích hợp AI, hỗ trợ giáo viên soạn bài và học sinh làm bài tập với tính năng chấm điểm tự động.",
   "requestFramePermissions": [
     "camera"
