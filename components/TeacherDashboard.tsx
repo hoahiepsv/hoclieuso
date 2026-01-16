@@ -15,7 +15,7 @@ interface Props {
 
 const TeacherDashboard: React.FC<Props> = ({ teacher, apiKey }) => {
   const [lessons, setLessons] = useState<Lesson[]>([]);
-  const [view, setView] = useState<'LIST' | 'CREATE' | 'RESULTS'>('LIST');
+  const [view, setView] = useState<'LIST' | 'CREATE' | 'RESULTS' | 'PREVIEW'>('LIST');
   const [editingLesson, setEditingLesson] = useState<Partial<Lesson> | null>(null);
   const [previewingLesson, setPreviewingLesson] = useState<Lesson | null>(null);
   const [results, setResults] = useState<any[]>([]);
@@ -198,6 +198,17 @@ const TeacherDashboard: React.FC<Props> = ({ teacher, apiKey }) => {
       ...l,
       visualAids
     });
+    setView('PREVIEW');
+  };
+
+  const handleClosePreview = () => {
+    // Return to where we came from
+    if (editingLesson?.title || (editingLesson?.questions?.length || 0) > 1) {
+       setView('CREATE');
+    } else {
+       setView('LIST');
+    }
+    setPreviewingLesson(null);
   };
 
   return (
@@ -215,12 +226,14 @@ const TeacherDashboard: React.FC<Props> = ({ teacher, apiKey }) => {
         />
       )}
 
-      {/* Navigation Tabs */}
-      <div className="flex gap-4 border-b-2 border-blue-100 pb-0 overflow-x-auto scrollbar-hide bg-white/50 backdrop-blur rounded-t-[32px] px-6 pt-3">
-        <button onClick={() => setView('LIST')} className={`px-10 py-5 rounded-t-2xl font-black text-xs transition-all uppercase tracking-widest ${view === 'LIST' ? 'bg-blue-600 text-white shadow-lg translate-y-0.5' : 'text-blue-400 hover:text-blue-600'}`}>KHO BÀI GIẢNG</button>
-        <button onClick={() => { setEditingLesson({ questions: [''], visualAids: {}, contentType: 'link' }); setView('CREATE'); }} className={`px-10 py-5 rounded-t-2xl font-black text-xs transition-all uppercase tracking-widest ${view === 'CREATE' ? 'bg-blue-600 text-white shadow-lg translate-y-0.5' : 'text-blue-400 hover:text-blue-600'}`}>TẠO MỚI</button>
-        <button onClick={() => setView('RESULTS')} className={`px-10 py-5 rounded-t-2xl font-black text-xs transition-all uppercase tracking-widest ${view === 'RESULTS' ? 'bg-blue-600 text-white shadow-lg translate-y-0.5' : 'text-blue-400 hover:text-blue-600'}`}>KẾT QUẢ</button>
-      </div>
+      {/* Navigation Tabs - Hidden in Preview */}
+      {view !== 'PREVIEW' && (
+        <div className="flex gap-4 border-b-2 border-blue-100 pb-0 overflow-x-auto scrollbar-hide bg-white/50 backdrop-blur rounded-t-[32px] px-6 pt-3">
+          <button onClick={() => setView('LIST')} className={`px-10 py-5 rounded-t-2xl font-black text-xs transition-all uppercase tracking-widest ${view === 'LIST' ? 'bg-blue-600 text-white shadow-lg translate-y-0.5' : 'text-blue-400 hover:text-blue-600'}`}>KHO BÀI GIẢNG</button>
+          <button onClick={() => { setEditingLesson({ questions: [''], visualAids: {}, contentType: 'link' }); setView('CREATE'); }} className={`px-10 py-5 rounded-t-2xl font-black text-xs transition-all uppercase tracking-widest ${view === 'CREATE' ? 'bg-blue-600 text-white shadow-lg translate-y-0.5' : 'text-blue-400 hover:text-blue-600'}`}>TẠO MỚI</button>
+          <button onClick={() => setView('RESULTS')} className={`px-10 py-5 rounded-t-2xl font-black text-xs transition-all uppercase tracking-widest ${view === 'RESULTS' ? 'bg-blue-600 text-white shadow-lg translate-y-0.5' : 'text-blue-400 hover:text-blue-600'}`}>KẾT QUẢ</button>
+        </div>
+      )}
 
       {view === 'LIST' && (
         <div className="space-y-6">
@@ -601,11 +614,10 @@ const TeacherDashboard: React.FC<Props> = ({ teacher, apiKey }) => {
         </div>
       )}
 
-      {/* Lesson Preview Modal - Enhanced z-index to stay above main header */}
-      {previewingLesson && (
-        <div className="fixed inset-0 z-[2000] bg-white overflow-y-auto custom-scrollbar flex flex-col animate-in">
+      {view === 'PREVIEW' && previewingLesson && (
+        <div className="animate-in space-y-8 pb-32">
            {/* Top bar */}
-           <div className="bg-white border-b border-blue-100 px-8 py-6 flex justify-between items-center sticky top-0 z-[2001] shadow-sm">
+           <div className="bg-white border-2 border-blue-100 px-8 py-6 flex justify-between items-center rounded-[32px] shadow-sm">
               <div className="flex items-center gap-4">
                  <div className="bg-blue-600 text-white px-4 py-2 rounded-xl text-xs font-black uppercase tracking-widest">
                    CHẾ ĐỘ XEM TRƯỚC
@@ -613,15 +625,16 @@ const TeacherDashboard: React.FC<Props> = ({ teacher, apiKey }) => {
                  <MathText content={previewingLesson.title} className="text-xl font-black text-blue-900 uppercase tracking-tight" />
               </div>
               <button 
-                onClick={() => setPreviewingLesson(null)}
-                className="bg-red-50 text-red-500 px-6 py-3 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-red-500 hover:text-white transition-all border border-red-100"
+                onClick={handleClosePreview}
+                className="bg-white text-blue-600 px-8 py-4 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-blue-50 transition-all border-2 border-blue-100 flex items-center gap-3"
               >
-                Đóng xem thử
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M10 19l-7-7m0 0l7-7m-7 7h18" /></svg>
+                Quay lại soạn thảo
               </button>
            </div>
 
-           {/* Content */}
-           <div className="max-w-4xl mx-auto w-full px-8 py-12 space-y-12">
+           {/* Content area */}
+           <div className="max-w-4xl mx-auto w-full space-y-12">
               {previewingLesson.contentUrl && (
                 <div className="space-y-4">
                    <div className="flex items-center gap-2">
@@ -645,8 +658,8 @@ const TeacherDashboard: React.FC<Props> = ({ teacher, apiKey }) => {
                     <div className="w-1 h-5 bg-blue-600 rounded-full"></div>
                     <h3 className="text-xs font-black text-blue-900 uppercase tracking-widest">Câu hỏi bài tập</h3>
                  </div>
-                 {previewingLesson.questions.map((q, idx) => (
-                    <div key={idx} className="bg-blue-50/30 p-8 rounded-[32px] border border-blue-100 flex flex-col gap-6">
+                 {(previewingLesson.questions || []).map((q, idx) => (
+                    <div key={idx} className="bg-white p-8 rounded-[32px] border border-blue-100 shadow-sm flex flex-col gap-6">
                        <div className="flex gap-4 items-start">
                           <span className="w-10 h-10 bg-blue-600 text-white rounded-xl flex items-center justify-center font-black text-lg shrink-0">
                             {idx + 1}
@@ -658,15 +671,15 @@ const TeacherDashboard: React.FC<Props> = ({ teacher, apiKey }) => {
                        )}
                        <div className="space-y-3">
                           <label className="text-[10px] font-black text-blue-400 uppercase tracking-widest ml-2 italic">Phần trả lời của học sinh sẽ hiển thị tại đây...</label>
-                          <div className="w-full h-32 bg-white/50 border-2 border-dashed border-blue-100 rounded-2xl"></div>
+                          <div className="w-full h-32 bg-blue-50/50 border-2 border-dashed border-blue-100 rounded-2xl"></div>
                        </div>
                     </div>
                  ))}
               </div>
 
-              <div className="bg-blue-50 p-10 rounded-[40px] text-center">
+              <div className="bg-blue-50 p-10 rounded-[40px] text-center border border-blue-100">
                  <p className="text-blue-400 font-bold uppercase text-[10px] tracking-widest mb-4">Mô phỏng nộp bài</p>
-                 <button className="bg-blue-600 text-white px-12 py-5 rounded-2xl font-black text-sm uppercase tracking-widest opacity-50 cursor-not-allowed">
+                 <button className="bg-blue-600 text-white px-12 py-5 rounded-2xl font-black text-sm uppercase tracking-widest opacity-50 cursor-not-allowed shadow-lg">
                     NỘP BÀI
                  </button>
               </div>
