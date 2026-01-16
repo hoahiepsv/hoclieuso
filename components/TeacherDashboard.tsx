@@ -2,7 +2,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { Teacher, Lesson, VisualAid } from '../types';
 import { fetchAllData, saveData } from '../services/api';
-import { GAS_URLS } from '../constants';
+import { GAS_URLS, Icons } from '../constants';
 import { GeminiService } from '../services/geminiService';
 import MathText from './MathText';
 import VisualAidRenderer from './VisualAidRenderer';
@@ -17,10 +17,12 @@ const TeacherDashboard: React.FC<Props> = ({ teacher, apiKey }) => {
   const [lessons, setLessons] = useState<Lesson[]>([]);
   const [view, setView] = useState<'LIST' | 'CREATE' | 'RESULTS'>('LIST');
   const [editingLesson, setEditingLesson] = useState<Partial<Lesson> | null>(null);
+  const [previewingLesson, setPreviewingLesson] = useState<Lesson | null>(null);
   const [results, setResults] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
   const [drawingIdx, setDrawingIdx] = useState<number | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
+  const [copyStatus, setCopyStatus] = useState<string | null>(null);
   
   const [aiTopic, setAiTopic] = useState('');
   const [difficulty, setDifficulty] = useState('Trung bình');
@@ -52,6 +54,12 @@ const TeacherDashboard: React.FC<Props> = ({ teacher, apiKey }) => {
       const data = await fetchAllData(GAS_URLS.RESULTS);
       setResults(data);
     } catch (e) { console.error(e); }
+  };
+
+  const handleCopyCode = (code: string) => {
+    navigator.clipboard.writeText(code);
+    setCopyStatus(code);
+    setTimeout(() => setCopyStatus(null), 2000);
   };
 
   const handleGenerateAISuggestions = async () => {
@@ -155,6 +163,21 @@ const TeacherDashboard: React.FC<Props> = ({ teacher, apiKey }) => {
     return code;
   };
 
+  const getEmbedUrl = (url: string) => {
+    if (!url) return "";
+    let finalUrl = url.trim();
+    if (finalUrl.includes("youtube.com/watch?v=")) finalUrl = finalUrl.replace("watch?v=", "embed/");
+    else if (finalUrl.includes("youtu.be/")) finalUrl = finalUrl.replace("youtu.be/", "youtube.com/embed/");
+    if (finalUrl.includes("drive.google.com")) {
+      if (finalUrl.includes("/view") || finalUrl.includes("/edit")) finalUrl = finalUrl.split('?')[0].replace(/\/view$/, "/preview").replace(/\/edit$/, "/preview");
+      else if (!finalUrl.endsWith("/preview")) {
+        const match = finalUrl.match(/\/file\/d\/([^\/]+)/);
+        if (match && match[1]) finalUrl = `https://drive.google.com/file/d/${match[1]}/preview`;
+      }
+    }
+    return finalUrl;
+  };
+
   const filteredLessons = useMemo(() => {
     return lessons.filter(l => 
       l.title?.toLowerCase().includes(searchTerm.toLowerCase()) || 
@@ -168,6 +191,14 @@ const TeacherDashboard: React.FC<Props> = ({ teacher, apiKey }) => {
         return creator === String(myUser).trim();
     });
   }, [results, myUser]);
+
+  const handleOpenPreview = (l: any) => {
+    const visualAids = typeof l.visualAids === 'string' ? JSON.parse(l.visualAids) : (l.visualAids || {});
+    setPreviewingLesson({
+      ...l,
+      visualAids
+    });
+  };
 
   return (
     <div className="space-y-8 pb-10">
@@ -200,7 +231,29 @@ const TeacherDashboard: React.FC<Props> = ({ teacher, apiKey }) => {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 animate-in">
             {filteredLessons.map((l: any) => (
               <div key={l.code} className="bg-white p-10 rounded-[40px] border border-blue-100 shadow-sm hover:shadow-2xl hover:border-blue-400 transition-all group flex flex-col h-full">
-                <span className="bg-blue-50 text-blue-600 px-5 py-2 rounded-xl text-[10px] font-black tracking-widest border border-blue-100 uppercase self-start mb-4">{l.code}</span>
+                <div className="flex items-center justify-between mb-4">
+                   <div className="flex items-center gap-2">
+                     <span className="bg-blue-50 text-blue-600 px-5 py-2 rounded-xl text-[10px] font-black tracking-widest border border-blue-100 uppercase">{l.code}</span>
+                     <button 
+                       onClick={() => handleCopyCode(l.code)} 
+                       className={`p-2 rounded-lg transition-all ${copyStatus === l.code ? 'bg-green-100 text-green-600' : 'bg-blue-50 text-blue-400 hover:bg-blue-100'}`}
+                       title="Copy mã bài học"
+                     >
+                        {copyStatus === l.code ? (
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" /></svg>
+                        ) : (
+                          <Icons.Copy />
+                        )}
+                     </button>
+                   </div>
+                   <button 
+                     onClick={() => handleOpenPreview(l)}
+                     className="bg-white border border-blue-100 text-blue-600 px-4 py-2 rounded-xl text-[9px] font-black uppercase hover:bg-blue-50 transition-all flex items-center gap-2"
+                   >
+                     <Icons.Eye />
+                     Xem trước
+                   </button>
+                </div>
                 <MathText content={l.title} className="font-black text-xl text-blue-900 mb-6 uppercase tracking-tighter line-clamp-2" />
                 <button onClick={() => { setEditingLesson({ ...l, visualAids: typeof l.visualAids === 'string' ? JSON.parse(l.visualAids) : (l.visualAids || {}), contentType: l.contentType || 'link' }); setView('CREATE'); }} className="mt-auto w-full bg-blue-600 py-5 rounded-2xl text-[10px] font-black text-white hover:bg-blue-700 transition-all uppercase tracking-widest shadow-lg">CHỈNH SỬA</button>
               </div>
@@ -327,7 +380,16 @@ const TeacherDashboard: React.FC<Props> = ({ teacher, apiKey }) => {
                   <h2 className="text-3xl font-black text-blue-900 uppercase tracking-tighter">BÀI GIẢNG</h2>
                   
                   <div className="space-y-4">
-                    <label className="block text-[10px] font-black text-blue-400 uppercase tracking-widest ml-2">Tên bài học</label>
+                    <div className="flex justify-between items-end">
+                      <label className="block text-[10px] font-black text-blue-400 uppercase tracking-widest ml-2">Tên bài học</label>
+                      <button 
+                        onClick={() => handleOpenPreview(editingLesson)}
+                        className="text-[10px] font-black text-blue-600 uppercase tracking-widest bg-blue-50 px-4 py-2 rounded-xl hover:bg-blue-600 hover:text-white transition-all border border-blue-100 flex items-center gap-2 mb-1"
+                      >
+                         <Icons.Eye />
+                         Xem trước soạn thảo
+                      </button>
+                    </div>
                     <input type="text" value={editingLesson?.title || ''} onChange={e => setEditingLesson({...editingLesson, title: e.target.value})} className="w-full border-2 border-blue-50 rounded-3xl p-6 focus:border-blue-500 outline-none transition-all shadow-sm font-black text-blue-900 text-lg" placeholder="VD: Ôn tập đại số chương 1..." />
                   </div>
 
@@ -534,6 +596,79 @@ const TeacherDashboard: React.FC<Props> = ({ teacher, apiKey }) => {
                        )}
                     </tbody>
                  </table>
+              </div>
+           </div>
+        </div>
+      )}
+
+      {/* Lesson Preview Modal */}
+      {previewingLesson && (
+        <div className="fixed inset-0 z-[500] bg-white overflow-y-auto custom-scrollbar flex flex-col animate-in">
+           {/* Top bar */}
+           <div className="bg-white border-b border-blue-100 px-8 py-6 flex justify-between items-center sticky top-0 z-50">
+              <div className="flex items-center gap-4">
+                 <div className="bg-blue-600 text-white px-4 py-2 rounded-xl text-xs font-black uppercase tracking-widest">
+                   CHẾ ĐỘ XEM TRƯỚC
+                 </div>
+                 <MathText content={previewingLesson.title} className="text-xl font-black text-blue-900 uppercase tracking-tight" />
+              </div>
+              <button 
+                onClick={() => setPreviewingLesson(null)}
+                className="bg-red-50 text-red-500 px-6 py-3 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-red-500 hover:text-white transition-all border border-red-100"
+              >
+                Đóng xem thử
+              </button>
+           </div>
+
+           {/* Content */}
+           <div className="max-w-4xl mx-auto w-full px-8 py-12 space-y-12">
+              {previewingLesson.contentUrl && (
+                <div className="space-y-4">
+                   <div className="flex items-center gap-2">
+                      <div className="w-1 h-5 bg-blue-600 rounded-full"></div>
+                      <h3 className="text-xs font-black text-blue-900 uppercase tracking-widest">Nội dung bài học</h3>
+                   </div>
+                   <div className="lesson-frame-container">
+                      <iframe 
+                        src={getEmbedUrl(previewingLesson.contentUrl)} 
+                        className="w-full h-full" 
+                        frameBorder="0" 
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                        allowFullScreen
+                      ></iframe>
+                   </div>
+                </div>
+              )}
+
+              <div className="space-y-8">
+                 <div className="flex items-center gap-2">
+                    <div className="w-1 h-5 bg-blue-600 rounded-full"></div>
+                    <h3 className="text-xs font-black text-blue-900 uppercase tracking-widest">Câu hỏi bài tập</h3>
+                 </div>
+                 {previewingLesson.questions.map((q, idx) => (
+                    <div key={idx} className="bg-blue-50/30 p-8 rounded-[32px] border border-blue-100 flex flex-col gap-6">
+                       <div className="flex gap-4 items-start">
+                          <span className="w-10 h-10 bg-blue-600 text-white rounded-xl flex items-center justify-center font-black text-lg shrink-0">
+                            {idx + 1}
+                          </span>
+                          <MathText content={q} className="text-[15px] font-bold text-blue-900 pt-1" />
+                       </div>
+                       {previewingLesson.visualAids?.[idx] && (
+                          <VisualAidRenderer aid={previewingLesson.visualAids[idx]} apiKey={apiKey} />
+                       )}
+                       <div className="space-y-3">
+                          <label className="text-[10px] font-black text-blue-400 uppercase tracking-widest ml-2 italic">Phần trả lời của học sinh sẽ hiển thị tại đây...</label>
+                          <div className="w-full h-32 bg-white/50 border-2 border-dashed border-blue-100 rounded-2xl"></div>
+                       </div>
+                    </div>
+                 ))}
+              </div>
+
+              <div className="bg-blue-50 p-10 rounded-[40px] text-center">
+                 <p className="text-blue-400 font-bold uppercase text-[10px] tracking-widest mb-4">Mô phỏng nộp bài</p>
+                 <button className="bg-blue-600 text-white px-12 py-5 rounded-2xl font-black text-sm uppercase tracking-widest opacity-50 cursor-not-allowed">
+                    Nộp bài cho AI
+                 </button>
               </div>
            </div>
         </div>
