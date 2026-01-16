@@ -57,8 +57,8 @@ const App: React.FC = () => {
       {/* Background Accent */}
       <div className="fixed top-0 left-0 w-full h-64 bg-blue-600 -z-10 opacity-[0.03]"></div>
 
-      {/* Header */}
-      <header className="bg-white/95 backdrop-blur-md sticky top-0 z-[60] border-b border-blue-100 px-4 md:px-12 py-4 shadow-sm">
+      {/* Header - Reduced z-index to allow overlays to cover it */}
+      <header className="bg-white/95 backdrop-blur-md sticky top-0 z-[40] border-b border-blue-100 px-4 md:px-12 py-4 shadow-sm">
         <div className="max-w-[1440px] mx-auto flex flex-col lg:flex-row justify-between items-center gap-4">
           
           {/* Logo Section */}
@@ -83,7 +83,7 @@ const App: React.FC = () => {
             </div>
           </div>
 
-          {/* API Key Management Area - Visible on both Mobile & Desktop */}
+          {/* API Key Management Area */}
           <div className="w-full lg:flex-grow lg:max-w-xl flex flex-col sm:flex-row items-center gap-2 bg-blue-50/30 p-3 lg:p-0 rounded-2xl lg:bg-transparent">
             <div className="relative flex-grow w-full">
               <input
@@ -138,8 +138,8 @@ const App: React.FC = () => {
         </div>
       </header>
 
-      {/* Main Content */}
-      <main className="flex-grow p-4 md:p-8 container mx-auto max-w-full relative z-10">
+      {/* Main Content - Removed z-index restriction to allow full-screen overlays to escape parent stacking context correctly */}
+      <main className="flex-grow p-4 md:p-8 container mx-auto max-w-full relative">
         {!appState.currentUser ? (
           <Login onLogin={handleLogin} />
         ) : (
@@ -229,7 +229,7 @@ const App: React.FC = () => {
         ADMIN
       </button>
 
-      {/* Admin Modal - Shrinked and Compact */}
+      {/* Admin Modal */}
       {showAdminLogin && (
         <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-blue-900/40 backdrop-blur-md animate-in">
           <div className="bg-white rounded-[32px] shadow-2xl p-6 max-w-[320px] w-full border border-blue-100 relative overflow-hidden">
