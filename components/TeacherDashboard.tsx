@@ -667,7 +667,7 @@ const TeacherDashboard: React.FC<Props> = ({ teacher, apiKey }) => {
               <div className="bg-blue-50 p-10 rounded-[40px] text-center">
                  <p className="text-blue-400 font-bold uppercase text-[10px] tracking-widest mb-4">Mô phỏng nộp bài</p>
                  <button className="bg-blue-600 text-white px-12 py-5 rounded-2xl font-black text-sm uppercase tracking-widest opacity-50 cursor-not-allowed">
-                    Nộp bài cho AI
+                    NỘP BÀI
                  </button>
               </div>
            </div>

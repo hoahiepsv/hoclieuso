@@ -436,9 +436,9 @@ const StudentDashboard: React.FC<Props> = ({ student, apiKey }) => {
               {isGrading ? (
                 <>
                   <div className="w-6 h-6 border-4 border-white/30 border-t-white rounded-full animate-spin"></div>
-                  <span>AI ĐANG CHẤM BÀI...</span>
+                  <span>ĐANG CHẤM BÀI...</span>
                 </>
-              ) : "Nộp bài cho AI"}
+              ) : "NỘP BÀI"}
             </button>
           </div>
         </div>
