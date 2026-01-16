@@ -57,8 +57,8 @@ const App: React.FC = () => {
       {/* Background Accent */}
       <div className="fixed top-0 left-0 w-full h-64 bg-blue-600 -z-10 opacity-[0.03]"></div>
 
-      {/* Header - Reduced z-index to allow overlays to cover it */}
-      <header className="bg-white/95 backdrop-blur-md sticky top-0 z-[40] border-b border-blue-100 px-4 md:px-12 py-4 shadow-sm">
+      {/* Header - Fixed on top */}
+      <header className="bg-white/95 backdrop-blur-md sticky top-0 z-[100] border-b border-blue-100 px-4 md:px-12 py-4 shadow-sm">
         <div className="max-w-[1440px] mx-auto flex flex-col lg:flex-row justify-between items-center gap-4">
           
           {/* Logo Section */}
@@ -138,7 +138,7 @@ const App: React.FC = () => {
         </div>
       </header>
 
-      {/* Main Content - Removed z-index restriction to allow full-screen overlays to escape parent stacking context correctly */}
+      {/* Main Content */}
       <main className="flex-grow p-4 md:p-8 container mx-auto max-w-full relative">
         {!appState.currentUser ? (
           <Login onLogin={handleLogin} />
@@ -152,7 +152,7 @@ const App: React.FC = () => {
       </main>
 
       {/* Footer */}
-      <footer className="bg-white/95 backdrop-blur-md border-t border-blue-50 py-4 px-10 fixed bottom-0 w-full z-[100] flex flex-wrap items-center justify-between gap-4">
+      <footer className="bg-white/95 backdrop-blur-md border-t border-blue-50 py-4 px-10 fixed bottom-0 w-full z-[80] flex flex-wrap items-center justify-between gap-4">
          <div className="flex items-center gap-3">
            <span className="text-[9px] font-black text-blue-900 uppercase tracking-widest">{APP_NAME} EDU SYSTEM</span>
          </div>
